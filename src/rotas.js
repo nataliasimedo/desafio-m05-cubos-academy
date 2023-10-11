@@ -1,8 +1,8 @@
 // Importa o módulo `express` para criar um servidor web
 const express = require('express');
 
-// Importa o middleware `verificaLogin` para verificar a autenticação do usuário
-const verificaLogin = require('./intermediarios/verificaLogin');
+// Importa o middleware `verificaToken` para verificar a autenticação do usuário
+const verificaToken = require('./intermediarios/verificaToken');
 
 // Importa o controlador `usuarios` para lidar com as rotas relacionadas a usuários
 const usuarios = require('./controladores/usuarios');
@@ -16,8 +16,6 @@ const { listarCategorias } = require('./controladores/categorias');
 // Cria uma instância do servidor Express
 const rotas = express();
 
-// Define a rota para listar as categorias
-rotas.get('/categoria', listarCategorias);
 
 // Define a rota para cadastrar um usuário
 rotas.post('/usuario', usuarios.cadastrarUsuario);
@@ -26,7 +24,10 @@ rotas.post('/usuario', usuarios.cadastrarUsuario);
 rotas.post('/login', login);
 
 // Define o middleware `verificaLogin` para todas as rotas protegidas
-rotas.use(verificaLogin);
+rotas.use(verificaToken);
+
+// Define a rota para listar as categorias
+rotas.get('/categoria', listarCategorias);
 
 // Define a rota para detalhar um usuário
 rotas.get('/usuario', usuarios.detalharUsuario);
