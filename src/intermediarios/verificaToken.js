@@ -19,7 +19,8 @@ const verificaToken = async (req, res, next) => {
             return response.status(401).json({ mensagem: 'Não autorizado.' });
         }
 
-        req.usuario = usuario;
+        const { senha: _, ...user } = usuario;
+        req.usuario = user;
         next();
 
     } catch (error) {

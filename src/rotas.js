@@ -16,6 +16,8 @@ const { listarCategorias } = require('./controladores/categorias');
 // Cria uma instância do servidor Express
 const rotas = express();
 
+// Define a rota para listar as categorias
+rotas.get('/categoria', listarCategorias);
 
 // Define a rota para cadastrar um usuário
 rotas.post('/usuario', usuarios.cadastrarUsuario);
@@ -26,8 +28,7 @@ rotas.post('/login', login);
 // Define o middleware `verificaLogin` para todas as rotas protegidas
 rotas.use(verificaToken);
 
-// Define a rota para listar as categorias
-rotas.get('/categoria', listarCategorias);
+
 
 // Define a rota para detalhar um usuário
 rotas.get('/usuario', usuarios.detalharUsuario);
