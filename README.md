@@ -2,11 +2,11 @@
 
 # Desafio Módulo 5 - Backend
 
-## Como entregar?
+## Equipe 22 - Code Fusion
 
-- [ ] Crie um repositório público no GitHub de algum membro de equipe
-- [ ] Adicione os membros da equipe no repositório
-- [ ] Enviei o link desse repositório na plataforma
+- Luana da Silva de Souza
+- Natália Barreto Simedo
+- Rebeca Barbosa Nunes da Silva
 
 ## Descrição do desafio
 
@@ -102,6 +102,28 @@ As categorias a seguir precisam ser previamente cadastradas para que sejam lista
 - Bebê
 - Games
 
+### Requisição
+
+Sem parâmetros de rota ou de query. Sem conteúdo no body da requisição.
+
+### Resposta
+
+Em caso de sucesso, todas as categorias cadastradas serão listadas.
+
+```javascript
+// HTTP Status 200
+[
+    {
+        "id": 1,
+        "descricao": "Informática"
+    },
+    {
+        "id": 2,
+        "descricao": "Celulares"
+    }
+]
+```
+
 </details>
 
 <details>
@@ -111,7 +133,19 @@ As categorias a seguir precisam ser previamente cadastradas para que sejam lista
 
 Essa é a rota que será utilizada para cadastrar um novo usuário no sistema.
 
-Critérios de aceite:
+### Requisição
+
+Sem parâmetros de rota ou de query. O body da requisição deverá possuir um objeto com as propriedades: nome, email e senha.
+
+```javascript
+{
+    "nome": "José",
+    "email": "jose@email.com",
+    "senha": "123456"
+}
+```
+
+### Critérios de aceite:
 
     - Validar os campos obrigatórios:
         - nome
@@ -119,6 +153,35 @@ Critérios de aceite:
         - senha
     - A senha deve ser criptografada utilizando algum algoritmo de criptografia confiável.
     - O campo e-mail no banco de dados deve ser único para cada registro, não permitindo dois usuários possuírem o mesmo e-mail.
+
+### Resposta
+
+Em caso de sucesso, serão enviados no body da resposta todos os dados do usuário cadastrado, exceto a senha.
+
+```javascript
+// HTTP Status 201
+{
+    "id": 1,
+    "nome": "José",
+    "email": "jose@email.com"
+}
+```
+
+Em caso de falha na validação, o body da resposta será um objeto com uma propriedade mensagem que possui como valor um texto explicando o motivo da falha.
+
+```javascript
+// HTTP Status 400
+{
+    "mensagem": "O campo nome é obrigatório."
+}
+```
+
+```javascript
+// HTTP Status 400
+{
+    "mensagem": "Já existe usuário cadastrado com o e-mail informado."
+}
+```
 
 </details>
 
@@ -129,10 +192,53 @@ Critérios de aceite:
 
 Essa é a rota que permite o usuário cadastrado realizar o login no sistema.
 
-Critérios de aceite:
+### Requisição
+
+Sem parâmetros de rota ou de query. O body da requisição deverá possuir um objeto com as propriedades: email e senha.
+
+```javascript
+{
+    "email": "jose@email.com",
+    "senha": "123456"
+}
+```
+
+### Critérios de aceite:
 
     - Validar se o e-mail e a senha estão corretos para o usuário em questão.
     - Gerar um token de autenticação para o usuário.
+
+### Resposta
+
+Em caso de sucesso, o body da resposta terá um objeto com a propriedade propriedade usuario contendo as informações do usuário autenticado, exceto a senha, e uma outra propriendade token que possui como valor o token de autenticação gerado.
+
+```javascript
+// HTTP Status 200
+{
+    "usuario": {
+        "id": 1,
+        "nome": "José",
+        "email": "jose@email.com"
+    },
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNjIzMjQ5NjIxLCJleHAiOjE2MjMyNzg0MjF9.KLR9t7m_JQJfpuRv9_8H2-XJ92TSjKhGPxJXVfX6wBI"
+}
+```
+
+Em caso de falha na validação, o body da resposta será um objeto com uma propriedade mensagem que possui como valor um texto explicando o motivo da falha.
+
+```javascript
+// HTTP Status 400
+{
+    "mensagem": "Usuário e/ou senha inválido(s)."
+}
+```
+
+```javascript
+// HTTP Status 400
+{
+    "mensagem": "O campo senha é obrigatório."
+}
+```
 
 </details>
 
@@ -149,6 +255,32 @@ Critérios de aceite:
 
 Essa é a rota que permite o usuário logado a visualizar os dados do seu próprio perfil, de acordo com a validação do token de autenticação.
 
+### Requisição
+
+Sem parâmetros de rota ou de query. Sem conteúdo no body da requisição.
+
+### Resposta
+
+Em caso de sucesso, serão enviados no body da resposta todos os dados do usuário cadastrado, exceto a senha.
+
+```javascript
+// HTTP Status 200
+{
+    "id": 1,
+    "nome": "José",
+    "email": "jose@email.com"
+}
+```
+
+Em caso de falha na validação, o body da resposta será um objeto com uma propriedade mensagem que possui como valor um texto explicando o motivo da falha.
+
+```javascript
+// HTTP Status 401
+{
+    "mensagem": "Para acessar este recurso um token de autenticação válido deve ser enviado."
+}
+```
+
 </details>
 
 <details>
@@ -158,7 +290,19 @@ Essa é a rota que permite o usuário logado a visualizar os dados do seu própr
 
 Essa é a rota que permite o usuário logado atualizar informações de seu próprio cadastro, de acordo com a validação do token de autenticação.
 
-Critérios de aceite:
+### Requisição
+
+Sem parâmetros de rota ou de query. O body da requisição deverá possuir um objeto com as propriedades: nome, email e senha.
+
+```javascript
+{
+    "nome": "José",
+    "email": "jose@email.com",
+    "senha": "123456"
+}
+```
+
+### Critérios de aceite:
 
     - Validar os campos obrigatórios:
         - nome
@@ -166,6 +310,30 @@ Critérios de aceite:
         - senha
     - A senha deve ser criptografada utilizando algum algoritmo de criptografia confiável.
     - O campo e-mail no banco de dados deve ser único para cada registro, não permitindo dois usuários possuírem o mesmo e-mail.
+
+### Resposta
+
+Em caso de sucesso, não deveremos enviar conteúdo no body da resposta.
+
+```javascript
+// HTTP Status 204
+```
+
+Em caso de falha na validação, o body da resposta será um objeto com uma propriedade mensagem que possui como valor um texto explicando o motivo da falha.
+
+```javascript
+// HTTP Status 400
+{
+    "mensagem": "O campo senha é obrigatório."
+}
+```
+
+```javascript
+// HTTP Status 400
+{
+    "mensagem": "Já existe usuário cadastrado com o e-mail informado."
+}
+```
 
 </details>
 
