@@ -31,8 +31,8 @@ rotas.use(verificaToken);
 // Define a rota para detalhar um usuário
 rotas.get('/usuario', usuarios.detalharUsuario);
 
-// Define a rota para atualizar um usuário
-rotas.put('/usuario', usuarios.atualizarUsuario);
+// Define a rota para editar um usuário
+rotas.put('/usuario', usuarios.editarUsuario);
 
 // Exporta as rotas da aplicação
 module.exports = rotas;

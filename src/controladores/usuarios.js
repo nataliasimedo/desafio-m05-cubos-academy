@@ -44,27 +44,51 @@ const cadastrarUsuario = async (req, res) => {
 // Função para detalhar um usuário
 const detalharUsuario = async (req, res) => {
     try {
-		const usuarioAutenticado = {
-			id: req.usuario.id,
-			nome: req.usuario.nome,
-			email: req.usuario.email
-		}
+        const usuarioAutenticado = {
+            id: req.usuario.id,
+            nome: req.usuario.nome,
+            email: req.usuario.email
+        }
 
-		return res.json(usuarioAutenticado);
-	} catch (error) {
-      console.error(error);
-		return res.status(500).json({ mensagem: "Erro interno do servidor." });
-	}
+        return res.json(usuarioAutenticado);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ mensagem: "Erro interno do servidor." });
+    }
 };
 
-// Função para atualizar um usuário
-const atualizarUsuario = async (req, res) => {
+// Função para editar um usuário
+const editarUsuario = async (req, res) => {
+    const id = req.usuario.id;
+    const { nome, email, senha } = req.body;
 
+    if (!nome || !email || !senha) {
+        return res.status(400).json({ mensagem: "Todos os campos são obrigatórios!" });
+    }
+
+    try {
+        const existeEmail = await knex('usuarios').select('email').where('id', '!=', id).andWhere({ email }).first();
+        if (existeEmail) {
+            return res.status(400).json({ mensagem: 'Já existe um usuário cadastrado com o e-mail informado.' });
+        }
+
+        const senhaCriptografada = await criptografarSenha(senha);
+
+        const usuarioEditado = await knex('usuarios').where({ id }).update({ nome, email, senha: senhaCriptografada });
+        if (!usuarioEditado) {
+            return res.status(500).json({ mensagem: 'Ocorreu um erro ao atualizar o usuário' })
+        }
+
+        return res.status(204).send();
+    } catch (error) {
+        console.error(error.message);
+        return res.status(500).json({ mensagem: error.message });
+    }
 };
 
 // Exporta as funções cadastrarUsuario, detalharUsuario e atualizarUsuario
 module.exports = {
     cadastrarUsuario,
     detalharUsuario,
-    atualizarUsuario
+    editarUsuario
 };
