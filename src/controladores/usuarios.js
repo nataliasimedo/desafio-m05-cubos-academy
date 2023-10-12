@@ -43,7 +43,18 @@ const cadastrarUsuario = async (req, res) => {
 
 // Função para detalhar um usuário
 const detalharUsuario = async (req, res) => {
+    try {
+		const usuarioAutenticado = {
+			id: req.usuario.id,
+			nome: req.usuario.nome,
+			email: req.usuario.email
+		}
 
+		return res.json(usuarioAutenticado);
+	} catch (error) {
+      console.error(error);
+		return res.status(500).json({ mensagem: "Erro interno do servidor." });
+	}
 };
 
 // Função para atualizar um usuário

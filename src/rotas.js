@@ -28,8 +28,6 @@ rotas.post('/login', login);
 // Define o middleware `verificaLogin` para todas as rotas protegidas
 rotas.use(verificaToken);
 
-
-
 // Define a rota para detalhar um usuário
 rotas.get('/usuario', usuarios.detalharUsuario);
 
