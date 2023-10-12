@@ -43,17 +43,9 @@ const cadastrarUsuario = async (req, res) => {
 
 // Função para detalhar um usuário
 const detalharUsuario = async (req, res) => {
-    const idToken = req.usuario.id;
-
-	try {
-		const usuario = await knex('usuarios').where('id', idToken)
-
-		if (!usuario) {
-			return res.status(404).json({ mensagem: "Para acessar este recurso um token de autenticação válido deve ser enviado." });
-		}
-
+    try {
 		const usuarioAutenticado = {
-			id: idToken,
+			id: req.usuario.id,
 			nome: req.usuario.nome,
 			email: req.usuario.email
 		}
