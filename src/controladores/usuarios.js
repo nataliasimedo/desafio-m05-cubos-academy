@@ -43,7 +43,26 @@ const cadastrarUsuario = async (req, res) => {
 
 // Função para detalhar um usuário
 const detalharUsuario = async (req, res) => {
+    const idToken = req.usuario.id;
 
+	try {
+		const usuario = await knex('usuarios').where('id', idToken)
+
+		if (!usuario) {
+			return res.status(404).json({ mensagem: "Para acessar este recurso um token de autenticação válido deve ser enviado." });
+		}
+
+		const usuarioAutenticado = {
+			id: idToken,
+			nome: req.usuario.nome,
+			email: req.usuario.email
+		}
+
+		return res.json(usuarioAutenticado);
+	} catch (error) {
+      console.error(error);
+		return res.status(500).json({ mensagem: "Erro interno do servidor." });
+	}
 };
 
 // Função para atualizar um usuário
