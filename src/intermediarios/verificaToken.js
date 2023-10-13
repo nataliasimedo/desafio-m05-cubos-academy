@@ -24,8 +24,7 @@ const verificaToken = async (req, res, next) => {
         next();
 
     } catch (error) {
-        console.error(error.message);
-        return res.status(500).json({ mensagem: error.message });
+        return res.status(401).json({ mensagem: 'Não autorizado.' });
     }
 }
 
