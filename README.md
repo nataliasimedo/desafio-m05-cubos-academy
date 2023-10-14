@@ -2,6 +2,8 @@
 
 # Desafio Módulo 5 - Backend
 
+Link do deploy da API: https://smoggy-bass-spacesuit.cyclic.app/
+
 ## Equipe 22 - Code Fusion
 
 - Luana da Silva de Souza
