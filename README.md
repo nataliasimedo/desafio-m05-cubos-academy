@@ -266,7 +266,7 @@ Sem parâmetros de rota ou de query. Sem conteúdo no body da requisição.
 Em caso de sucesso, serão enviados no body da resposta todos os dados do usuário cadastrado, exceto a senha.
 
 ```javascript
-// HTTP Status 200
+// HTTP Status 201
 {
     "id": 1,
     "nome": "José",
@@ -315,7 +315,7 @@ Sem parâmetros de rota ou de query. O body da requisição deverá possuir um o
 
 ### Resposta
 
-Em caso de sucesso, não deveremos enviar conteúdo no body da resposta.
+Em caso de sucesso, não será enviado conteúdo no body da resposta.
 
 ```javascript
 // HTTP Status 204
@@ -344,6 +344,360 @@ Em caso de falha na validação, o body da resposta será um objeto com uma prop
 <br>
 
 Fazer deploy do projeto e disponibilizar a URL.
+
+</details>
+
+</details>
+
+---
+
+<details>
+<summary>2ª Sprint</summary>
+<br>
+
+<details>
+<summary><b>Banco de Dados</b></summary>
+<br>
+
+Crie as seguintes tabelas e colunas abaixo:
+
+**ATENÇÃO! Os nomes das tabelas e das colunas a serem criados devem seguir exatamente os nomes listados abaixo.**
+
+- produtos
+  - id
+  - descricao
+  - quantidade_estoque
+  - valor
+  - categoria_id
+- clientes
+  - id
+  - nome
+  - email (campo único)
+  - cpf (campo único)
+  - cep
+  - rua
+  - numero
+  - bairro
+  - cidade
+  - estado
+
+</details>
+
+---
+
+## **ATENÇÃO**: Todas as funcionalidades (endpoints) a seguir, a partir desse ponto, deverão exigir o token de autenticação do usuário logado, recebendo no header com o formato Bearer Token. Portanto, em cada funcionalidade será necessário validar o token informado.
+
+---
+
+<details>
+<summary><b>Cadastrar Produto</b></summary>
+
+#### `POST` `/produto`
+
+Essa é a rota que permite o usuário logado cadastrar um novo produto no sistema.
+
+### Requisição
+
+Sem parâmetros de rota ou de query. O body da requisição deverá possuir um objeto com as propriedades: descricao, quantidade_estoque, valor e categoria_id.
+
+```javascript
+{
+    "descricao": "Arroz",
+    "quantidade_estoque": 5,
+	"valor": 2000,
+	"categoria_id": 4
+}
+```
+
+### Critérios de aceite:
+
+    -   Validar os campos obrigatórios:
+        -   descricao
+        -   quantidade_estoque
+        -   valor
+        -   categoria_id
+    -   A categoria informada na qual o produto será vinculado deverá existir.
+
+### Resposta
+
+Em caso de sucesso, serão enviados no body da resposta todos os dados do produto cadastrado.
+
+```javascript
+// HTTP Status 201
+{
+	"id": 1,
+	"descricao": "Arroz",
+	"quantidade_estoque": 5,
+	"valor": 2000,
+	"categoria_id": 4
+}
+```
+
+Em caso de falha na validação, o body da resposta será um objeto com uma propriedade mensagem que possui como valor um texto explicando o motivo da falha.
+
+```javascript
+// HTTP Status 400
+{
+	"mensagem": "O campo descricao é obrigatório."
+}
+```
+
+```javascript
+// HTTP Status 400
+{
+	"mensagem": "O campo quantidade_estoque deve ser um número inteiro."
+}
+```
+
+```javascript
+// HTTP Status 404
+{
+	"mensagem": "A categoria_id informada não foi encontrada."
+}
+```
+
+</details>
+
+<details>
+<summary><b>Editar dados do produto</b></summary>
+
+#### `PUT` `/produto/:id`
+
+Essa é a rota que permite o usuário logado a atualizar as informações de um produto cadastrado.
+
+### Requisição
+
+Sem parâmetros do tipo query. O id do produto é enviado como parâmetro na rota. O body da requisição deverá possuir um objeto com as propriedades: descricao, quantidade_estoque, valor e categoria_id.
+
+```javascript
+{
+    "descricao": "Arroz",
+    "quantidade_estoque": 5,
+	"valor": 2000,
+	"categoria_id": 4
+}
+```
+
+### Critérios de aceite:
+
+    -   Validar se existe produto para o id enviado como parâmetro na rota.
+    -   Validar os campos obrigatórios:
+        -   descricao
+        -   quantidade_estoque
+        -   valor
+        -   categoria_id
+    -   A categoria informada na qual o produto será vinculado deverá existir.
+
+### Resposta
+
+Em caso de sucesso, não será enviado conteúdo no body da resposta.
+
+```javascript
+// HTTP Status 204
+```
+
+Em caso de falha na validação, o body da resposta será um objeto com uma propriedade mensagem que possui como valor um texto explicando o motivo da falha.
+
+```javascript
+// HTTP Status 404
+{
+	"mensagem": "Produto não encontrado."
+}
+```
+
+```javascript
+// HTTP Status 400
+{
+	"mensagem": "O campo valor não pode ser um número negativo."
+}
+```
+
+</details>
+
+<details>
+<summary><b>Listar Produtos</b></summary>
+
+#### `GET` `/produto`
+
+Essa é a rota que será chamada quando o usuário logado quiser listar todos os produtos cadastrados.
+
+Deveremos incluir um parâmetro do tipo query **categoria_id** para que seja possível consultar produtos por categorias, de modo, que serão filtrados de acordo com o id de uma categoria.
+
+### Requisição
+
+Sem parâmetros de rota e sem conteúdo no body na requisição. Pode ser passado um parâmetro do tipo query **categoria_id**. 
+
+### Critérios de aceite:
+
+    - Caso seja enviado o parâmetro do tipo query categoria_id, filtrar os produtos de acordo com a categoria, caso o id de categoria informada exista.
+    - Caso não seja informado o parâmetro do tipo query categoria_id todos os produtos cadastrados deverão ser retornados.
+
+### Resposta
+
+Em caso de sucesso, serão enviados no body da resposta os produtos cadastrados.
+
+```javascript
+// HTTP Status 200
+[
+    {
+	    "id": 1,
+	    "descricao": "Arroz",
+	    "quantidade_estoque": 5,
+	    "valor": 2000,
+	    "categoria_id": 4
+    },
+    {
+        "id": 2,
+	    "descricao": "Blusa azul",
+	    "quantidade_estoque": 12,
+	    "valor": 5890,
+	    "categoria_id": 7
+    }
+]
+```
+
+Caso seja enviado como parâmetro do tipo query um id de categoria que não existe, será enviada uma mensagem de erro.
+
+```javascript
+// HTTP Status 404
+{
+    "mensagem": "O id de categoria informado não existe."
+}
+```
+
+</details>
+
+<details>
+<summary><b>Detalhar Produto</b></summary>
+
+#### `GET` `/produto/:id`
+
+Essa é a rota que permite o usuário logado obter um de seus produtos cadastrados.
+
+### Requisição
+
+Sem parâmetros do tipo query e sem conteúdo no body da requisição. O id do produto é enviado como parâmetro na rota.
+
+### Critérios de aceite:
+
+    -   Validar se existe produto para o id enviado como parâmetro na rota.
+
+### Resposta
+
+Em caso de sucesso, serão enviados no body da resposta todos os dados do produto cadastrado.
+
+```javascript
+// HTTP Status 200
+{
+	"id": 1,
+	"descricao": "Arroz",
+	"quantidade_estoque": 5,
+	"valor": 2000,
+	"categoria_id": 4
+}
+```
+
+Em caso de falha na validação, o body da resposta será um objeto com uma propriedade mensagem que possui como valor um texto explicando o motivo da falha.
+
+```javascript
+// HTTP Status 404
+{
+	"mensagem": "Produto não encontrado."
+}
+```
+
+</details>
+
+<details>
+<summary><b>Excluir Produto por ID</b></summary>
+
+#### `DELETE` `/produto/:id`
+
+Essa é a rota que será chamada quando o usuário logado quiser excluir um de seus produtos cadastrados.
+
+### Requisição
+
+Sem parâmetros do tipo query e sem conteúdo no body da requisição. O id do produto é enviado como parâmetro na rota.
+
+### Critérios de aceite:
+
+    -   Validar se existe produto para o id enviado como parâmetro na rota.
+
+### Resposta
+
+Em caso de sucesso, não será enviada mensagem no body da resposta.
+
+```javascript
+// HTTP Status 204
+```
+
+Em caso de falha na validação, o body da resposta será um objeto com uma propriedade mensagem que possui como valor um texto explicando o motivo da falha.
+
+```javascript
+// HTTP Status 404
+{
+	"mensagem": "Produto não encontrado."
+}
+```
+
+</details>
+
+<details>
+<summary><b>Cadastrar Cliente</b></summary>
+
+#### `POST` `/cliente`
+
+Essa é a rota que permite usuário logado cadastrar um novo cliente no sistema.
+
+Critérios de aceite:
+
+    -   Validar os campos obrigatórios:
+        -   nome
+        -   email
+        -   cpf
+    -   O campo e-mail no banco de dados deve ser único para cada registro, não permitindo dois clientes possuírem o mesmo e-mail.
+    -   O campo cpf no banco de dados deve ser único para cada registro, não permitindo dois clientes possuírem o mesmo cpf.
+
+</details>
+
+<details>
+<summary><b>Editar dados do cliente</b></summary>
+
+#### `PUT` `/cliente/:id`
+
+Essa é a rota que permite o usuário realizar atualização de um cliente cadastrado.
+
+Critérios de aceite:
+
+    -   Validar se existe cliente para o id enviado como parâmetro na rota.
+    -   Validar os campos obrigatórios:
+        -   nome
+        -   email
+        -   cpf
+    -   O campo e-mail no banco de dados deve ser único para cada registro, não permitindo dois clientes possuírem o mesmo e-mail.
+    -   O campo cpf no banco de dados deve ser único para cada registro, não permitindo dois clientes possuírem o mesmo cpf.
+
+</details>
+
+<details>
+<summary><b>Listar Clientes</b></summary>
+
+#### `GET` `/cliente`
+
+Essa é a rota que será chamada quando o usuário logado quiser listar todos os clientes cadastrados.
+
+</details>
+
+<details>
+<summary><b>Detalhar Cliente</b></summary>
+
+#### `GET` `/cliente/:id`
+
+Essa é a rota que será chamada quando o usuário logado quiser obter um de seus clientes cadastrados.
+
+Critérios de aceite:
+
+    -   Validar se existe cliente para o id enviado como parâmetro na rota.
 
 </details>
 
