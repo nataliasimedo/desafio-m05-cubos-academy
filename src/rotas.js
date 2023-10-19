@@ -4,8 +4,10 @@ const usuarios = require('./controladores/usuarios');
 const { login } = require('./controladores/login');
 const { listarCategorias } = require('./controladores/categorias');
 const validarRequisicao = require('./intermediarios/validarRequisicao');
+const clientes = require('./controladores/clientes');
 const schemaUsuario = require('./validacoes/schemaUsuario');
 const schemaLogin = require('./validacoes/schemaLogin');
+const schemaCliente = require('./validacoes/schemaCliente');
 
 const rotas = express();
 
@@ -18,5 +20,8 @@ rotas.use(verificaToken);
 
 rotas.get('/usuario', usuarios.detalharUsuario);
 rotas.put('/usuario', validarRequisicao(schemaUsuario), usuarios.editarUsuario);
+
+rotas.get('/cliente', clientes.listarClientes);
+rotas.post('/cliente', validarRequisicao(schemaCliente), clientes.cadastrarCliente);
 
 module.exports = rotas;
