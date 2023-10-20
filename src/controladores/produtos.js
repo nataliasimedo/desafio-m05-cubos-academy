@@ -34,6 +34,11 @@ const editarProduto = async (req, res) => {
             return res.status(404).json({ mensagem: "Produto não encontrado." });
         }
 
+        const categoriaIdValida = await knex('categorias').where({ id: categoria_id }).first();
+        if (!categoriaIdValida) {
+            return res.status(400).json({ mensagem: 'A categoria_id informada não é válida.' });
+        }
+
         const produtoEditado = await knex("produtos")
             .where("id", id)
             .update({ descricao, quantidade_estoque, valor, categoria_id });
@@ -50,15 +55,15 @@ const listarProdutos = async (req, res) => {
     let produtos;
 
     if (categoriaId) {
-        const produtoExistente = await knex("produtos").where("categoria_id", categoriaId).first();
+        const categoriaExistente = await knex('categorias').where({ id: categoriaId }).first();
 
-        if (!produtoExistente) {
-            return res.status(404).json({ mensagem: "Categoria não encontrada." });
+        if (!categoriaExistente) {
+            return res.status(404).json({ mensagem: 'O id de categoria informado não existe.' });
         }
 
-        produtos = await knex("produtos").where("categoria_id", categoriaId).select("descricao", "quantidade_estoque", "valor");
+        produtos = await knex("produtos").where("categoria_id", categoriaId).select("*");
     } else {
-        produtos = await knex("produtos").select("descricao", "quantidade_estoque", "valor");
+        produtos = await knex("produtos").select("*");
     }
 
     return res.json(produtos);
