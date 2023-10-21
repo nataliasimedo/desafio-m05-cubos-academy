@@ -52,6 +52,63 @@ const cadastrarCliente = async (req, res) => {
     }
 }
 
+const editarCliente = async (req, res, next) => {
+    const { id } = req.params
+    let { nome, email, cpf, cep, rua, numero, bairro, cidade, estado } = req.body;
+
+    try {
+        const cliente = await knex('clientes').where({ id }).first()
+
+        if (!cliente) {
+            return res.status(404).json({ mensagem: 'Cliente não encontrado.' })
+        }
+
+        if (cep) {
+            const endereco = await obterDadosEndereco(cep, { rua, bairro, cidade, estado });
+
+            if (typeof endereco === 'string') {
+                return res.status(400).json({ mensagem: endereco });
+            }
+
+            rua = rua ? rua : endereco.rua;
+            bairro = bairro ? bairro : endereco.bairro;
+            cidade = cidade ? cidade : endereco.cidade;
+            estado = estado ? estado.toUpperCase() : endereco.estado
+
+        }
+
+        const existeEmail = await knex('clientes').where({ email }).first();
+
+        if (existeEmail && existeEmail.id !== cliente.id) {
+            return res.status(400).json({ mensagem: 'Já existe outro cliente cadastrado com o e-mail informado.' });
+        }
+
+        const existeCpf = await knex('clientes').where({ cpf }).first();
+
+        if (existeCpf && existeCpf.id !== cliente.id) {
+            return res.status(400).json({ mensagem: 'Já existe outro cliente cadastrado com o cpf informado.' });
+        }
+
+        await knex('clientes').update({
+            nome,
+            email,
+            cpf,
+            cep: cep ? cep : null,
+            rua: rua ? rua : null,
+            numero: numero ? numero : null,
+            bairro: bairro ? bairro : null,
+            cidade: cidade ? cidade : null,
+            estado: estado ? estado : null
+        }).where({ id })
+
+        return res.status(204).send();
+
+
+    } catch (error) {
+        return res.status(500).json({ mensagem: error.message });
+    }
+}
+
 const listarClientes = async (req, res) => {
     try {
         const clientes = await knex('clientes');
@@ -61,7 +118,25 @@ const listarClientes = async (req, res) => {
     }
 }
 
+const detalharClientes = async (req, res) => {
+    const { id } = req.params
+
+    try {
+        const cliente = await knex('clientes').where({ id }).first()
+
+        if (!cliente) {
+            return res.status(404).json({ mensagem: 'Cliente não encontrado.' })
+        }
+
+        return res.status(200).json(cliente)
+    } catch (error) {
+        return res.status(500).json({ mensagem: error.message });
+    }
+}
+
 module.exports = {
     cadastrarCliente,
-    listarClientes
+    listarClientes,
+    editarCliente,
+    detalharClientes
 }

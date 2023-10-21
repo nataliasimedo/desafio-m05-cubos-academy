@@ -33,7 +33,9 @@ rotas.get('/produto', listarProdutos);
 rotas.get('/produto/:id', detalharProduto);
 rotas.delete('/produto/:id', excluirProduto);
 
-rotas.get('/cliente', clientes.listarClientes);
 rotas.post('/cliente', validarRequisicao(schemaCliente), validarCpf, clientes.cadastrarCliente);
+rotas.put('/cliente/:id', validarRequisicao(schemaCliente), validarCpf, clientes.editarCliente)
+rotas.get('/cliente', clientes.listarClientes);
+rotas.get('/cliente/:id', clientes.detalharClientes)
 
 module.exports = rotas;
