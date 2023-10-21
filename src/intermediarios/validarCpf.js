@@ -11,6 +11,8 @@ const validarCpf = (req, res, next) => {
         return res.status(400).json({ mensagem: 'CPF inválido. Deve conter exatamente 11 dígitos numéricos.' });
     }
 
+    req.body.cpf = cpf;
+
     next();
 }
 
