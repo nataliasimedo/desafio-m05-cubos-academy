@@ -1,16 +1,19 @@
 const express = require('express');
-const verificaToken = require('./intermediarios/verificaToken');
+
 const usuarios = require('./controladores/usuarios');
 const { login } = require('./controladores/login');
 const { listarCategorias } = require('./controladores/categorias');
-const validarRequisicao = require('./intermediarios/validarRequisicao');
 const clientes = require('./controladores/clientes');
+const { cadastrarProduto, editarProduto, listarProdutos, detalharProduto, excluirProduto } = require('./controladores/produtos');
+
+const validarRequisicao = require('./intermediarios/validarRequisicao');
+const validarCpf = require('./intermediarios/validarCpf');
+const verificaToken = require('./intermediarios/verificaToken');
 
 const schemaUsuario = require('./validacoes/schemaUsuario');
 const schemaLogin = require('./validacoes/schemaLogin');
 const schemaCliente = require('./validacoes/schemaCliente');
-const validarCpf = require('./intermediarios/validarCpf');
-
+const schemaProduto = require('./validacoes/schemaProduto');
 
 const rotas = express();
 
@@ -23,6 +26,12 @@ rotas.use(verificaToken);
 
 rotas.get('/usuario', usuarios.detalharUsuario);
 rotas.put('/usuario', validarRequisicao(schemaUsuario), usuarios.editarUsuario);
+
+rotas.post('/produto', validarRequisicao(schemaProduto), cadastrarProduto);
+rotas.put('/produto/:id', validarRequisicao(schemaProduto), editarProduto);
+rotas.get('/produto', listarProdutos);
+rotas.get('/produto/:id', detalharProduto);
+rotas.delete('/produto/:id', excluirProduto);
 
 rotas.get('/cliente', clientes.listarClientes);
 rotas.post('/cliente', validarRequisicao(schemaCliente), validarCpf, clientes.cadastrarCliente);
