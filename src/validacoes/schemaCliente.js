@@ -14,18 +14,17 @@ const schemaCliente = joi.object({
         'string.email': 'O campo email deve possuir um formato válido.'
     }),
 
-    cpf: joi.string().required().min(11).max(11).messages({
+    cpf: joi.string().required().min(11).max(14).messages({
         'any.required': 'O campo cpf é obrigatório.',
         'string.empty': 'O campo cpf é obrigatório.',
         'string.base': 'O campo cpf deve possuir um formato válido.',
-        'string.min': 'O campo cpf deve ter no mínimo 11 caracteres',
-        'string.max': 'O campo cpf não aceita caracteres especiais.'
+        'string.min': 'O campo cpf deve ter no mínimo 11 caracteres.',
+        'string.max': 'O campo cpf aceita no máximo 14 caracteres.'
     }),
 
-    cep: joi.string().min(8).max(9).messages({
+    cep: joi.string().length(8).messages({
         'string.base': 'O campo cep deve possuir um formato válido.',
-        'string.min': 'O campo cep deve ter no mínimo 8 caracteres.',
-        'string.max': 'O campo cep dever ter no máximo 9 caracteres.'
+        'string.length': 'O campo cep deve ter 8 caracteres numéricos.'
     }),
 
     rua: joi.string().messages({
@@ -33,7 +32,7 @@ const schemaCliente = joi.object({
     }),
 
     numero: joi.string().messages({
-        'string.base': 'O campo rua deve ser do tipo texto.'
+        'string.base': 'O campo numero deve ser do tipo texto.'
     }),
 
     bairro: joi.string().messages({

@@ -1,11 +1,25 @@
 const knex = require("../conexao");
+const { obterDadosEndereco } = require("../utils/endereco");
 
 const cadastrarCliente = async (req, res) => {
     const { nome, email, cpf, cep, rua, numero, bairro, cidade, estado } = req.body;
-
-    const uf = estado ? estado.toUpperCase() : estado;
-
+    let logradouro, bairroAtualizado, localidade, uf;
     try {
+
+        if (cep) {
+            const endereco = await obterDadosEndereco(cep, { rua, bairro, cidade, estado });
+
+            if (typeof endereco === 'string') {
+                return res.status(400).json({ mensagem: endereco });
+            }
+
+            logradouro = rua ? rua : endereco.rua;
+            bairroAtualizado = bairro ? bairro : endereco.bairro;
+            localidade = cidade ? cidade : endereco.cidade;
+            uf = estado ? estado.toUpperCase() : endereco.estado
+
+        }
+
         const existeEmail = await knex('clientes').where({ email }).first();
 
         if (existeEmail) {
@@ -23,14 +37,15 @@ const cadastrarCliente = async (req, res) => {
             email,
             cpf,
             cep,
-            rua,
+            rua: logradouro ? logradouro : rua,
             numero,
-            bairro,
-            cidade,
-            estado: uf
-        }).returning(['id', 'nome', 'email', 'cpf']);
+            bairro: bairroAtualizado ? bairroAtualizado : bairro,
+            cidade: localidade ? localidade : cidade,
+            estado: uf ? uf : estado
+        }).returning('*');
 
         return res.status(201).json(novoCliente);
+
 
     } catch (error) {
         return res.status(500).json({ mensagem: error.message });
@@ -42,7 +57,7 @@ const listarClientes = async (req, res) => {
         const clientes = await knex('clientes');
         return res.json(clientes);
     } catch (error) {
-        return res.status(500).json({ mensagem: error.message })
+        return res.status(500).json({ mensagem: error.message });
     }
 }
 
