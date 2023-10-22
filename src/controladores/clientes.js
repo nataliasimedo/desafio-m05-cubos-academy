@@ -63,20 +63,6 @@ const editarCliente = async (req, res, next) => {
             return res.status(404).json({ mensagem: 'Cliente não encontrado.' })
         }
 
-        if (cep) {
-            const endereco = await obterDadosEndereco(cep, { rua, bairro, cidade, estado });
-
-            if (typeof endereco === 'string') {
-                return res.status(400).json({ mensagem: endereco });
-            }
-
-            rua = rua ? rua : endereco.rua;
-            bairro = bairro ? bairro : endereco.bairro;
-            cidade = cidade ? cidade : endereco.cidade;
-            estado = estado ? estado.toUpperCase() : endereco.estado
-
-        }
-
         const existeEmail = await knex('clientes').where({ email }).first();
 
         if (existeEmail && existeEmail.id !== cliente.id) {

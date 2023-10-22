@@ -9,6 +9,7 @@ const { cadastrarProduto, editarProduto, listarProdutos, detalharProduto, exclui
 const validarRequisicao = require('./intermediarios/validarRequisicao');
 const validarCpf = require('./intermediarios/validarCpf');
 const verificaToken = require('./intermediarios/verificaToken');
+const validarCepCpf = require('./intermediarios/validarCepCpf');
 
 const schemaUsuario = require('./validacoes/schemaUsuario');
 const schemaLogin = require('./validacoes/schemaLogin');
@@ -34,7 +35,7 @@ rotas.get('/produto/:id', detalharProduto);
 rotas.delete('/produto/:id', excluirProduto);
 
 rotas.post('/cliente', validarRequisicao(schemaCliente), validarCpf, clientes.cadastrarCliente);
-rotas.put('/cliente/:id', validarRequisicao(schemaCliente), validarCpf, clientes.editarCliente)
+rotas.put('/cliente/:id', validarRequisicao(schemaCliente), validarCepCpf, clientes.editarCliente)
 rotas.get('/cliente', clientes.listarClientes);
 rotas.get('/cliente/:id', clientes.detalharClientes)
 
