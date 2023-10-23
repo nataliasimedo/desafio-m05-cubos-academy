@@ -7,8 +7,8 @@ const clientes = require('./controladores/clientes');
 const { cadastrarProduto, editarProduto, listarProdutos, detalharProduto, excluirProduto } = require('./controladores/produtos');
 
 const validarRequisicao = require('./intermediarios/validarRequisicao');
-const validarCpf = require('./intermediarios/validarCpf');
 const verificaToken = require('./intermediarios/verificaToken');
+const validarCepCpf = require('./intermediarios/validarCepCpf');
 
 const schemaUsuario = require('./validacoes/schemaUsuario');
 const schemaLogin = require('./validacoes/schemaLogin');
@@ -33,7 +33,9 @@ rotas.get('/produto', listarProdutos);
 rotas.get('/produto/:id', detalharProduto);
 rotas.delete('/produto/:id', excluirProduto);
 
+rotas.post('/cliente', validarRequisicao(schemaCliente), validarCepCpf, clientes.cadastrarCliente);
+rotas.put('/cliente/:id', validarRequisicao(schemaCliente), validarCepCpf, clientes.editarCliente)
 rotas.get('/cliente', clientes.listarClientes);
-rotas.post('/cliente', validarRequisicao(schemaCliente), validarCpf, clientes.cadastrarCliente);
+rotas.get('/cliente/:id', clientes.detalharClientes)
 
 module.exports = rotas;
