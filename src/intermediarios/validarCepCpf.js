@@ -17,7 +17,7 @@ const validarCepCpf = async (req, res, next) => {
         if (req.body.cep) {
             const cepCliente = req.body.cep.replace('.', '').replace('-', '').trim()
 
-            if (isNaN(Number(cepCliente))) {
+            if (isNaN(Number(cepCliente)) || cepCliente.length !== 8) {
                 return res.status(400).json({ mensagem: 'CEP inválido.' })
             }
 
@@ -31,6 +31,7 @@ const validarCepCpf = async (req, res, next) => {
             req.body.bairro = bairro ? bairro : endereco.data.bairro
             req.body.cidade = cidade ? cidade : endereco.data.localidade
             req.body.estado = estado ? estado.toUpperCase() : endereco.data.uf
+            req.body.cep = endereco.data.cep
         }
 
         next()

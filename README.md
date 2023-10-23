@@ -649,7 +649,21 @@ Em caso de falha na validação, o body da resposta será um objeto com uma prop
 
 Essa é a rota que permite usuário logado cadastrar um novo cliente no sistema.
 
-Critérios de aceite:
+### Requisição
+
+Sem parâmetros de rota ou de query. O body da requisição deverá possuir um objeto com as propriedades obrigatórias: nome, email e cpf. Também poderá conter as propriedades opcionais: cep, rua, numero, bairro, cidade e estado. Os dados do cep e do cpf serão aceitos com ou sem os caracteres especiais . e -.
+
+```javascript
+{
+	"nome": "João",
+	"email": "joao@email.com.br",
+	"cpf": "927.973.370-26",
+	"cep": "31.270-901",
+	"rua": "Avenida Presidente Antônio Carlos"
+}
+```
+
+### Critérios de aceite:
 
     -   Validar os campos obrigatórios:
         -   nome
@@ -657,6 +671,49 @@ Critérios de aceite:
         -   cpf
     -   O campo e-mail no banco de dados deve ser único para cada registro, não permitindo dois clientes possuírem o mesmo e-mail.
     -   O campo cpf no banco de dados deve ser único para cada registro, não permitindo dois clientes possuírem o mesmo cpf.
+
+### Resposta
+
+Em caso de sucesso, serão enviados no body da resposta todos os dados do cliente cadastrado. Caso o cliente tenha passado o cep, mas não tenha informado todas as outras informações do endereço, esses dados faltantes serão preenchidos de acordo com o cep informado. 
+
+```javascript
+// HTTP Status 201
+{
+	"id": 10,
+	"nome": "João",
+	"email": "joao@email.com.br",
+	"cpf": "005.844.300-27",
+	"cep": "31.270-901",
+	"rua": "Avenida Presidente Antônio Carlos",
+	"numero": null,
+	"bairro": "Pampulha",
+	"cidade": "Belo Horizonte",
+	"estado": "MG"
+}
+```
+
+Em caso de falha na validação, o body da resposta será um objeto com uma propriedade mensagem que possui como valor um texto explicando o motivo da falha. Será feita a validação do cpf e do cep (caso seja informado) e só será permitido o cadastro de cpf e cep válidos.
+
+```javascript
+// HTTP Status 400
+{
+	"mensagem": "O campo email é obrigatório."
+}
+```
+
+```javascript
+// HTTP Status 400
+{
+	"mensagem": "CPF inválido."
+}
+```
+
+```javascript
+// HTTP Status 400
+{
+	"mensagem": "Já existe cliente cadastrado com o e-mail informado."
+}
+```
 
 </details>
 
@@ -667,7 +724,25 @@ Critérios de aceite:
 
 Essa é a rota que permite o usuário realizar atualização de um cliente cadastrado.
 
-Critérios de aceite:
+### Requisição
+
+Sem parâmetros do tipo query. O id do usuário deverá ser passado como parâmetro de rota. O body da requisição deverá possuir um objeto com as propriedades obrigatórias: nome, email e cpf. Também poderá conter as propriedades opcionais: cep, rua, numero, bairro, cidade e estado. Os dados do cep e do cpf serão aceitos com ou sem os caracteres especiais . e -.
+
+```javascript
+{
+	"nome": "João",
+	"email": "joao@email.com.br",
+	"cpf": "005.844.300-27",
+	"cep": "31.270-901",
+	"rua": "Avenida Presidente Antônio Carlos",
+	"numero": "6627",
+	"bairro": "Pampulha",
+	"cidade": "Belo Horizonte",
+	"estado": "MG"
+}
+```
+
+### Critérios de aceite:
 
     -   Validar se existe cliente para o id enviado como parâmetro na rota.
     -   Validar os campos obrigatórios:
@@ -676,6 +751,30 @@ Critérios de aceite:
         -   cpf
     -   O campo e-mail no banco de dados deve ser único para cada registro, não permitindo dois clientes possuírem o mesmo e-mail.
     -   O campo cpf no banco de dados deve ser único para cada registro, não permitindo dois clientes possuírem o mesmo cpf.
+
+### Resposta
+
+Em caso de sucesso, não será enviado conteúdo no body da resposta.
+
+```javascript
+// HTTP Status 204
+```
+
+Em caso de falha na validação, o body da resposta será um objeto com uma propriedade mensagem que possui como valor um texto explicando o motivo da falha. Será feita a validação do cpf e do cep (caso seja informado) e só será permitido o cadastro de cpf e cep válidos.
+
+```javascript
+// HTTP Status 400
+{
+	"mensagem": "Já existe outro cliente cadastrado com o cpf informado."
+}
+```
+
+```javascript
+// HTTP Status 400
+{
+	"mensagem": "CEP inválido."
+}
+```
 
 </details>
 
@@ -686,6 +785,44 @@ Critérios de aceite:
 
 Essa é a rota que será chamada quando o usuário logado quiser listar todos os clientes cadastrados.
 
+### Requisição
+
+Sem parâmetros de rota e de query e sem conteúdo no body na requisição. 
+
+### Resposta
+
+Em caso de sucesso, serão enviados no body da resposta todos os clientes cadastrados.
+
+```javascript
+// HTTP Status 200
+[
+    {
+		"id": 1,
+		"nome": "Rebeca",
+		"email": "beca@email.com",
+		"cpf": "409.494.660-85",
+		"cep": null,
+		"rua": null,
+		"numero": null,
+		"bairro": null,
+		"cidade": null,
+		"estado": null
+	},
+	{
+		"id": 2,
+		"nome": "Maria",
+		"email": "maria@gmail.com",
+		"cpf": "053.006.280-18",
+		"cep": "68909-829",
+		"rua": "rua 01",
+		"numero": "10",
+		"bairro": "Novo Horizonte",
+		"cidade": "Macapá",
+		"estado": "AP"
+	}
+]
+```
+
 </details>
 
 <details>
@@ -695,9 +832,42 @@ Essa é a rota que será chamada quando o usuário logado quiser listar todos os
 
 Essa é a rota que será chamada quando o usuário logado quiser obter um de seus clientes cadastrados.
 
-Critérios de aceite:
+### Requisição
+
+Sem parâmetros do tipo query e sem conteúdo no body na requisição. O id do cliente será passado como parâmetro de rota. 
+
+### Critérios de aceite:
 
     -   Validar se existe cliente para o id enviado como parâmetro na rota.
+
+### Resposta
+
+Em caso de sucesso, serão enviados no body da resposta todos os dados do cliente.
+
+```javascript
+// HTTP Status 200
+{
+	"id": 2,
+	"nome": "Maria",
+	"email": "maria@gmail.com",
+	"cpf": "053.006.280-18",
+	"cep": "68909-829",
+	"rua": "rua 01",
+	"numero": "10",
+	"bairro": "Novo Horizonte",
+	"cidade": "Macapá",
+	"estado": "AP"
+}
+```
+
+Em caso de falha na validação, o body da resposta será um objeto com uma propriedade mensagem que possui como valor um texto explicando o motivo da falha.
+
+```javascript
+// HTTP Status 404
+{
+	"mensagem": "Cliente não encontrado."
+}
+```
 
 </details>
 

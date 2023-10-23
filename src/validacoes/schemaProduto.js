@@ -4,7 +4,7 @@ const schemaProduto = joi.object({
     descricao: joi.string().required().messages({
         'any.required': 'O campo descricao é obrigatório.',
         'string.empty': 'O campo descricao é obrigatório.',
-        'string.base': 'O campo descricao deve possuir um formato válido.'
+        'string.base': 'O campo descrição deve ser do tipo texto.'
     }),
 
     quantidade_estoque: joi.number().integer().min(0).required().messages({
