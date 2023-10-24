@@ -41,3 +41,20 @@ CREATE TABLE clientes (
   cidade VARCHAR(255),
   estado CHAR(2)
 );
+
+ALTER TABLE produtos ADD COLUMN produto_imagem TEXT;
+
+CREATE TABLE pedidos(
+  id SERIAL PRIMARY KEY,
+  cliente_id INTEGER REFERENCES clientes(id),
+  observacao VARCHAR(255),
+  valor_total INTEGER NOT NULL
+);
+
+CREATE TABLE pedido_produtos (
+  id SERIAL PRIMARY KEY,
+  pedido_id INTEGER REFERENCES pedidos(id),
+  produto_id INTEGER REFERENCES produtos(id),
+  quantidade_produto INTEGER NOT NULL,
+  valor_produto INTEGER NOT NULL
+);
