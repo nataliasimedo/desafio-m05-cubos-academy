@@ -9,6 +9,7 @@ const { cadastrarProduto, editarProduto, listarProdutos, detalharProduto, exclui
 const validarRequisicao = require('./intermediarios/validarRequisicao');
 const verificaToken = require('./intermediarios/verificaToken');
 const validarCepCpf = require('./intermediarios/validarCepCpf');
+const multer = require('./intermediarios/multer');
 
 const schemaUsuario = require('./validacoes/schemaUsuario');
 const schemaLogin = require('./validacoes/schemaLogin');
@@ -27,8 +28,8 @@ rotas.use(verificaToken);
 rotas.get('/usuario', usuarios.detalharUsuario);
 rotas.put('/usuario', validarRequisicao(schemaUsuario), usuarios.editarUsuario);
 
-rotas.post('/produto', validarRequisicao(schemaProduto), cadastrarProduto);
-rotas.put('/produto/:id', validarRequisicao(schemaProduto), editarProduto);
+rotas.post('/produto', multer.single('produto_imagem'), validarRequisicao(schemaProduto), cadastrarProduto);
+rotas.put('/produto/:id', multer.single('produto_imagem'), validarRequisicao(schemaProduto), editarProduto);
 rotas.get('/produto', listarProdutos);
 rotas.get('/produto/:id', detalharProduto);
 rotas.delete('/produto/:id', excluirProduto);
