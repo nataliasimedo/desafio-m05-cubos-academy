@@ -1,4 +1,6 @@
 const knex = require("../conexao");
+const transport = require('../email')
+const compiladorHtml = require('../utils/compiladorHtml')
 
 const cadastrarPedido = async (req, res) => {
     const { cliente_id, observacao, pedido_produtos } = req.body
@@ -47,6 +49,20 @@ const cadastrarPedido = async (req, res) => {
                 quantidade_estoque: item.quantidade_estoque - item.quantidade_produto
             }).where({ id: item.produto_id })
         }
+
+        const valorPedidoFormatado = `${Math.trunc((valor_total / 100))},${valor_total % 100}`
+        const html = await compiladorHtml('./src/templates/pedido.html', {
+            nomeCliente: cliente.nome,
+            idPedido: pedido[0].id,
+            valorPedido: valorPedidoFormatado
+        })
+
+        transport.sendMail({
+            from: `${process.env.EMAIL_NAME} <${process.env.EMAIL_FROM}>`,
+            to: `${cliente.nome} <${cliente.email}>`,
+            subject: 'Novo pedido',
+            html
+        })
 
         return res.status(201).json(pedido)
     } catch (error) {
