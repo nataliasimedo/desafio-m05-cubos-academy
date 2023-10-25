@@ -70,4 +70,24 @@ const cadastrarPedido = async (req, res) => {
     }
 }
 
-module.exports = cadastrarPedido
+const listarPedidos = async (req, res) => {
+    try {
+      const clienteId = req.query.cliente_id;
+      const pedidos = await knex('pedidos')
+        .where('cliente_id', clienteId)
+        .select('pedidos.id', 'pedidos.valor_total', 'pedidos.observacao', 'pedidos.cliente_id')
+        .join('pedido_produtos', 'pedidos.id', 'pedido_produtos.pedido_id')
+        .select('pedido_produtos.id', 'pedido_produtos.quantidade_produto', 'pedido_produtos.valor_produto', 'pedido_produtos.pedido_id', 'pedido_produtos.produto_id')
+        .get();
+  
+      res.status(200).json(pedidos);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: error.message });
+    }
+  }
+
+module.exports = {
+    cadastrarPedido,
+    listarPedidos
+}

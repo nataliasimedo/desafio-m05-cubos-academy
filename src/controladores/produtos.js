@@ -103,21 +103,26 @@ const detalharProduto = async (req, res) => {
 
 const excluirProduto = async (req, res) => {
     const id = req.params.id;
-
+    const produtosPedidos = await knex("pedido_produtos").where("produto_id", id).select("produto_id");
+  
     try {
-        const produto = await knex("produtos").where("id", id).first();
-
-        if (!produto) {
-            return res.status(404).json({ mensagem: "Produto não encontrado." });
-        }
-
-        await knex("produtos").where("id", id).del();
-
-        return res.status(204).send();
+      const produto = await knex("produtos").where("id", id).first();
+  
+      if (!produto) {
+        return res.status(404).json({ mensagem: "Produto não encontrado." });
+      }
+  
+      if (produtosPedidos.length > 0) {
+        return res.status(400).json({ mensagem: "Produto não pode ser excluído, pois foi feito algum pedido." });
+      }
+  
+      await knex("produtos").where("id", id).del();
+  
+      return res.status(204).send();
     } catch (error) {
-        return res.status(500).json({ mensagem: error.message });
+      return res.status(500).json({ mensagem: error.message });
     }
-};
+  };
 
 module.exports = {
     cadastrarProduto,
