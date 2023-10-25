@@ -1,5 +1,5 @@
 const knex = require("../conexao");
-const { uploadImagem } = require("../servicos/uploads");
+const { uploadImagem, excluirImagem } = require("../servicos/uploads");
 
 const cadastrarProduto = async (req, res) => {
     const { descricao, quantidade_estoque, valor, categoria_id } = req.body
@@ -134,6 +134,8 @@ const excluirProduto = async (req, res) => {
         }
 
         await knex("produtos").where("id", id).del();
+
+        await excluirImagem(produto.produto_imagem)
 
         return res.status(204).send();
     } catch (error) {
