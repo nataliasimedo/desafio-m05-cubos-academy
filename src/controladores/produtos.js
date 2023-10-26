@@ -1,5 +1,6 @@
 const knex = require("../conexao");
 const { uploadImagem } = require("../servicos/uploads");
+const { formatarNome } = require("../utils/uploadImagem");
 
 const cadastrarProduto = async (req, res) => {
     const { descricao, quantidade_estoque, valor, categoria_id } = req.body
@@ -33,8 +34,9 @@ const cadastrarProduto = async (req, res) => {
 
         if (produto_imagem) {
             const { originalname, mimetype, buffer } = produto_imagem
+            const nomeFormatado = formatarNome(originalname, ['jpg', 'png', 'jpeg']);
             const imagem = await uploadImagem(
-                `${idProduto}/${originalname}`, buffer, mimetype)
+                `${idProduto}/${nomeFormatado}`, buffer, mimetype)
 
             produto = await knex('produtos')
                 .where('id', idProduto)
