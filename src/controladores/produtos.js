@@ -33,8 +33,8 @@ const cadastrarProduto = async (req, res) => {
 
         if (produto_imagem) {
             const { originalname, mimetype, buffer } = produto_imagem
-            const imagem = await uploadImagem(
-                `${idProduto}/${originalname}`, buffer, mimetype)
+
+            const imagem = await uploadImagem(originalname, idProduto, buffer, mimetype)
 
             produto = await knex('produtos')
                 .where('id', idProduto)
@@ -71,7 +71,7 @@ const editarProduto = async (req, res) => {
             return res.status(400).json({ mensagem: 'Um outro produto com essa descrição já foi cadastrado antes.' })
         }
 
-        const imagemUrl = produto_imagem ? await uploadImagem(produto_imagem.originalname, produto_imagem.buffer, produto_imagem.mimetype) : undefined;
+        const imagemUrl = produto_imagem ? await uploadImagem(produto_imagem.originalname, id, produto_imagem.buffer, produto_imagem.mimetype) : undefined;
 
         await knex("produtos")
             .where("id", id)

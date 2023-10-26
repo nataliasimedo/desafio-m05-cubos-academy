@@ -1,4 +1,5 @@
 const aws = require('aws-sdk');
+const { formatarNome } = require('../utils/imagem-produto');
 
 const endpoint = new aws.Endpoint(process.env.ENDPOINT_BACKBLAZE);
 
@@ -10,10 +11,11 @@ const s3 = new aws.S3({
     }
 })
 
-const uploadImagem = async (path, buffer, mimetype) => {
+const uploadImagem = async (path, idProduto, buffer, mimetype) => {
+    const pathFormatado = formatarNome(path);
     const imagem = await s3.upload({
         Bucket: process.env.BUCKET_NAME,
-        Key: `produtos/${path}`,
+        Key: `produtos/${idProduto}/${pathFormatado}`,
         Body: buffer,
         ContentType: mimetype
     }).promise();
