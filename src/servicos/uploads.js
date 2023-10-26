@@ -24,8 +24,8 @@ const uploadImagem = async (path, idProduto, buffer, mimetype) => {
 }
 
 const excluirImagem = async (link) => {
-    const pathImagem = `https://${process.env.BUCKET_NAME}.${process.env.ENDPOINT_BACKBLAZE}/`
-    const key = link.replace(pathImagem, '')
+    const linkFixo = `https://${process.env.BUCKET_NAME}.${process.env.ENDPOINT_BACKBLAZE}/`
+    const key = link.replace(linkFixo, '')
 
     await s3.deleteObject({
         Bucket: process.env.BUCKET_NAME,

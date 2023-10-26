@@ -71,6 +71,8 @@ const editarProduto = async (req, res) => {
             return res.status(400).json({ mensagem: 'Um outro produto com essa descrição já foi cadastrado antes.' })
         }
 
+        await excluirImagem(produtoExistente.produto_imagem)
+
         const imagemUrl = produto_imagem ? await uploadImagem(produto_imagem.originalname, id, produto_imagem.buffer, produto_imagem.mimetype) : undefined;
 
         await knex("produtos")
