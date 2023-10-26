@@ -71,45 +71,76 @@ const cadastrarPedido = async (req, res) => {
 }
 
 const listarPedidos = async (req, res) => {
-    try {
-      const clienteId = req.query.cliente_id;
-      let pedidos;
-  
-      if (clienteId) {
-        pedidos = await knex('pedidos')
-          .where('cliente_id', clienteId)
-          .select('pedidos.id', 'pedidos.valor_total', 'pedidos.observacao', 'pedidos.cliente_id')
-          .join('pedido_produtos', 'pedidos.id', 'pedido_produtos.pedido_id')
-          .select('pedido_produtos.id', 'pedido_produtos.quantidade_produto', 'pedido_produtos.valor_produto', 'pedido_produtos.pedido_id', 'pedido_produtos.produto_id');
-      } else {
-        pedidos = await knex('pedidos')
-          .select('pedidos.id', 'pedidos.valor_total', 'pedidos.observacao', 'pedidos.cliente_id')
-          .join('pedido_produtos', 'pedidos.id', 'pedido_produtos.pedido_id')
-          .select('pedido_produtos.id', 'pedido_produtos.quantidade_produto', 'pedido_produtos.valor_produto', 'pedido_produtos.pedido_id', 'pedido_produtos.produto_id');
-      }
-  
-      const formattedPedidos = pedidos.map((pedido) => ({
+  try {
+    const clienteId = req.query.cliente_id;
+    let pedidos;
+
+    if (clienteId) {
+      pedidos = await knex("pedidos")
+        .where("cliente_id", clienteId)
+        .select(
+          "pedidos.id",
+          "pedidos.valor_total",
+          "pedidos.observacao",
+          "pedidos.cliente_id"
+        )
+        .join("pedido_produtos", "pedidos.id", "pedido_produtos.pedido_id")
+        .select(
+          "pedido_produtos.id",
+          "pedido_produtos.quantidade_produto",
+          "pedido_produtos.valor_produto",
+          "pedido_produtos.pedido_id",
+          "pedido_produtos.produto_id"
+        );
+    } else {
+      pedidos = await knex("pedidos")
+        .select(
+          "pedidos.id",
+          "pedidos.valor_total",
+          "pedidos.observacao",
+          "pedidos.cliente_id"
+        )
+        .join("pedido_produtos", "pedidos.id", "pedido_produtos.pedido_id")
+        .select(
+          "pedido_produtos.id",
+          "pedido_produtos.quantidade_produto",
+          "pedido_produtos.valor_produto",
+          "pedido_produtos.pedido_id",
+          "pedido_produtos.produto_id"
+        );
+    }
+
+    const formattedPedidos = [];
+    for (const pedido of pedidos) {
+      const formattedPedido = {
         pedido: {
           id: pedido.id,
           valor_total: pedido.valor_total,
           observacao: pedido.observacao || null,
           cliente_id: pedido.cliente_id,
         },
-        pedido_produtos: pedido.pedido_produtos.map((pedido_produto) => ({
-          id: pedido_produto.id,
-          quantidade_produto: pedido_produto.quantidade_produto,
-          valor_produto: pedido_produto.valor_produto,
-          pedido_id: pedido_produto.pedido_id,
-          produto_id: pedido_produto.produto_id,
-        })),
-      }));
-  
-      res.status(200).json(formattedPedidos);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: error.message });
+        pedido_produtos: [],
+      };
+      if (pedido.pedido_produtos) {
+        for (const pedido_produto of pedido.pedido_produtos) {
+          formattedPedido.pedido_produtos.push({
+            id: pedido_produto.id,
+            quantidade_produto: pedido_produto.quantidade_produto,
+            valor_produto: pedido_produto.valor_produto,
+            pedido_id: pedido_produto.pedido_id,
+            produto_id: pedido_produto.produto_id,
+          });
+        }
+      }
+      formattedPedidos.push(formattedPedido);
     }
+
+    res.status(200).json(formattedPedidos);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
   }
+};
   
 
 module.exports = {
