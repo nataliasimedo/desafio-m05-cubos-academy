@@ -111,30 +111,29 @@ const listarPedidos = async (req, res) => {
     }
 
     const formattedPedidos = [];
-    for (const pedido of pedidos) {
-      const formattedPedido = {
-        pedido: {
-          id: pedido.id,
-          valor_total: pedido.valor_total,
-          observacao: pedido.observacao || null,
-          cliente_id: pedido.cliente_id,
-        },
-        pedido_produtos: [],
-      };
-      if (pedido.pedido_produtos) {
-        for (const pedido_produto of pedido.pedido_produtos) {
-          formattedPedido.pedido_produtos.push({
-            id: pedido_produto.id,
-            quantidade_produto: pedido_produto.quantidade_produto,
-            valor_produto: pedido_produto.valor_produto,
-            pedido_id: pedido_produto.pedido_id,
-            produto_id: pedido_produto.produto_id,
-          });
+    for (const item of pedidos) {
+      let itemFormatado = false;
+      for (const pedido of formattedPedidos) {
+        if (pedido.pedido.id === item.pedido_id) {
+          const { valor_total, observacao, cliente_id, ...dadosProduto } = item;
+          pedido.pedido_produtos.push(dadosProduto);
+          itemFormatado = true;
+          break;
         }
       }
-      formattedPedidos.push(formattedPedido);
+      if (!itemFormatado) {
+        const { valor_total, observacao, cliente_id, ...dadosProduto } = item;
+        formattedPedidos.push({
+          pedido: {
+            id: item.pedido_id,
+            valor_total,
+            observacao,
+            cliente_id,
+          },
+          pedido_produtos: [dadosProduto],
+        });
+      }
     }
-
     res.status(200).json(formattedPedidos);
   } catch (error) {
     console.error(error);
