@@ -127,7 +127,6 @@ const detalharProduto = async (req, res) => {
 
 const excluirProduto = async (req, res) => {
     const id = req.params.id;
-    const produtosPedidos = await knex("pedido_produtos").where("produto_id", id).select("produto_id");
 
     try {
         const produto = await knex("produtos").where("id", id).first();
@@ -135,6 +134,8 @@ const excluirProduto = async (req, res) => {
         if (!produto) {
             return res.status(404).json({ mensagem: "Produto não encontrado." });
         }
+
+        const produtosPedidos = await knex("pedido_produtos").where("produto_id", id).select("produto_id");
 
         if (produtosPedidos.length > 0) {
             return res.status(400).json({ mensagem: "Produto não pode ser excluído, pois foi feito algum pedido." });

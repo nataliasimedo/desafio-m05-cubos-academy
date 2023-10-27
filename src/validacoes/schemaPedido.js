@@ -21,7 +21,7 @@ const schemaPedido = joi.object({
             'number.min': 'Em nenhum produto o campo produto_id pode ser um número negativo.'
         }),
 
-        quantidade_produto: joi.number().integer().min(0).required().messages({
+        quantidade_produto: joi.number().integer().min(1).required().messages({
             'any.required': 'Em todos produtos o campo quantidade_produto é obrigatório.',
             'number.base': 'Em todos produtos o campo quantidade_produto deve ser um número inteiro.',
             'number.integer': 'Em todos produtos o campo quantidade_produto deve ser um número inteiro.',

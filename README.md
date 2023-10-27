@@ -398,7 +398,7 @@ Essa é a rota que permite o usuário logado cadastrar um novo produto no sistem
 
 ### Requisição
 
-Sem parâmetros de rota ou de query. O body da requisição deverá possuir um objeto com as propriedades: descricao, quantidade_estoque, valor e categoria_id.
+Sem parâmetros de rota ou de query. O body da requisição deverá possuir um objeto com as propriedades: descricao, quantidade_estoque, valor e categoria_id. Também pode possuir a propriedade opcional produto_imagem com o arquivo de imagem do produto.
 
 ```javascript
 {
@@ -420,7 +420,7 @@ Sem parâmetros de rota ou de query. O body da requisição deverá possuir um o
 
 ### Resposta
 
-Em caso de sucesso, serão enviados no body da resposta todos os dados do produto cadastrado.
+Em caso de sucesso, serão enviados no body da resposta todos os dados do produto cadastrado. Se foi enviado na requisição uma imagem do produto, também será retornado o link do upload da imagem.
 
 ```javascript
 // HTTP Status 201
@@ -429,7 +429,8 @@ Em caso de sucesso, serão enviados no body da resposta todos os dados do produt
 	"descricao": "Arroz",
 	"quantidade_estoque": 5,
 	"valor": 2000,
-	"categoria_id": 4
+	"categoria_id": 4,
+    "produto_imagem": null
 }
 ```
 
@@ -467,7 +468,7 @@ Essa é a rota que permite o usuário logado a atualizar as informações de um 
 
 ### Requisição
 
-Sem parâmetros do tipo query. O id do produto é enviado como parâmetro na rota. O body da requisição deverá possuir um objeto com as propriedades: descricao, quantidade_estoque, valor e categoria_id.
+Sem parâmetros do tipo query. O id do produto é enviado como parâmetro na rota. O body da requisição deverá possuir um objeto com as propriedades: descricao, quantidade_estoque, valor e categoria_id. Também pode possuir a propriedade opcional produto_imagem com o arquivo de imagem do produto.
 
 ```javascript
 {
@@ -915,6 +916,8 @@ Crie as seguintes tabelas e colunas abaixo:
 
 Essa é a rota que será utilizada para cadastrar um novo pedido no sistema.
 
+### Requisição
+
 **Lembre-se:** Cada pedido deverá conter ao menos um produto vinculado.
 
 **Atenção:** As propriedades produto_id e quantidade_produto devem ser informadas dentro de um array e para cada produto deverá ser criado um objeto neste array, como ilustrado no objeto de requisição abaixo.
@@ -938,7 +941,7 @@ Só deverá ser cadastrado o pedido caso todos produtos vinculados ao pedido rea
 }
 ```
 
-Critérios de aceite:
+### Critérios de aceite:
 
     -   Validar os campos obrigatórios:
         -   cliente_id
@@ -951,6 +954,36 @@ Critérios de aceite:
     -   O pedido deverá ser cadastrado, apenas, se todos os produtos estiverem validados. 
     -   Enviar e-mail para o cliente notificando que o pedido foi efetuado com sucesso.   
 
+### Resposta
+
+Em caso de sucesso, serão enviados no body da resposta os dados do pedido. Também será enviada uma mensagem para o email cadastrado do cliente. 
+
+```javascript
+// HTTP Status 201
+{
+	"id": 24,
+	"cliente_id": 3,
+	"observacao": null,
+	"valor_total": 14618
+}
+```
+
+Em caso de falha na validação, o body da resposta será um objeto com uma propriedade mensagem que possui como valor um texto explicando o motivo da falha. 
+
+```javascript
+// HTTP Status 404
+{
+	"mensagem": "Não foi encontrado o produto de id 87."
+}
+```
+
+```javascript
+// HTTP Status 400
+{
+	"mensagem": "O produto de id 3 não possui estoque suficiente."
+}
+```
+
 </details>
 
 <details>
@@ -961,6 +994,19 @@ Critérios de aceite:
 Essa é a rota que será chamada quando o usuário logado quiser listar todos os pedidos cadastrados.
 
 Deveremos incluir um parâmetro do tipo query **cliente_id** para que seja possível consultar pedidos por clientes, de modo, que serão filtrados de acordo com o id de um cliente.
+
+### Requisição
+
+Sem parâmetros de rota e sem conteúdo no body na requisição. Pode ser passado um parâmetro do tipo query **cliente_id**. 
+
+### Critérios de aceite:
+
+    - Caso seja enviado o parâmetro do tipo query **cliente_id**, filtrar os pedidos de acordo com o cliente, caso o id do cliente informado exista.
+    - Caso não seja informado o parâmetro do tipo query **cliente_id** todos os pedidos cadastrados deverão ser retornados.
+
+### Resposta
+
+Em caso de sucesso, serão enviados no body da resposta os pedidos cadastrados.
 
 ```javascript
 // Resposta para listagem de pedido (body)
@@ -992,10 +1038,14 @@ Deveremos incluir um parâmetro do tipo query **cliente_id** para que seja poss�
 ]
 ```
 
-Critérios de aceite:
+Caso seja enviado como parâmetro do tipo query um id de cliente que não existe, será enviada uma mensagem de erro.
 
-    - Caso seja enviado o parâmetro do tipo query **cliente_id**, filtrar os pedidos de acordo com o cliente, caso o id do cliente informado exista.
-    - Caso não seja informado o parâmetro do tipo query **cliente_id** todos os pedidos cadastrados deverão ser retornados.
+```javascript
+// HTTP Status 404
+{
+    "mensagem": "O id de cliente informado não existe."
+}
+```
 
 </details>
 
