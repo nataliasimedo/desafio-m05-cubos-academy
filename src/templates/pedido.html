@@ -5,11 +5,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pedido</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        h1,
+        h2,
+        th {
+            color: #1c5fae;
+        }
+
+        th,
+        td {
+            background-color: #dedede;
+        }
+    </style>
 </head>
 
 <body>
     <h1>Novo pedido para {{nomeCliente}}</h1>
-    <p>O pedido de id {{idPedido}} no valor de R${{valorPedido}} foi efetuado com sucesso.</p>
+    <p>O pedido de id {{idPedido}} no valor de R$ {{valorPedido}} foi efetuado com sucesso.</p>
+    <h2>Informações do Pedido:</h2>
+    <table>
+
+        <thead>
+
+            <tr>
+                <th>Descrição</th>
+                <th>Id do Produto</th>
+                <th>Quantidade</th>
+                <th></th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+            {{#each produtos}}
+            <tr>
+                <td>{{descricao}}</td>
+                <td>{{produto_id}}</td>
+                <td>{{quantidade_produto}}</td>
+                <td><img src="{{produto_imagem}}" alt="produto" width="45px"></td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
 </body>
 
 </html>

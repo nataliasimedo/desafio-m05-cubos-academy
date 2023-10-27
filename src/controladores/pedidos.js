@@ -49,12 +49,15 @@ const cadastrarPedido = async (req, res) => {
       await knex('produtos').update({
         quantidade_estoque: item.quantidade_estoque - item.quantidade_produto
       }).where({ id: item.produto_id })
+
+
     }
 
     const html = await compiladorHtml('./src/templates/pedido.html', {
       nomeCliente: cliente.nome,
       idPedido: pedido[0].id,
-      valorPedido: formatarDinheiro(valor_total)
+      valorPedido: formatarDinheiro(valor_total),
+      produtos: listaDeProdutos
     })
 
     transport.sendMail({
