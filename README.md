@@ -398,7 +398,7 @@ Essa é a rota que permite o usuário logado cadastrar um novo produto no sistem
 
 ### Requisição
 
-Sem parâmetros de rota ou de query. O body da requisição deverá possuir um objeto com as propriedades: descricao, quantidade_estoque, valor e categoria_id.
+Sem parâmetros de rota ou de query. O body da requisição deverá possuir um objeto com as propriedades: descricao, quantidade_estoque, valor e categoria_id. Também pode possuir a propriedade opcional produto_imagem com o arquivo de imagem do produto.
 
 ```javascript
 {
@@ -420,7 +420,7 @@ Sem parâmetros de rota ou de query. O body da requisição deverá possuir um o
 
 ### Resposta
 
-Em caso de sucesso, serão enviados no body da resposta todos os dados do produto cadastrado.
+Em caso de sucesso, serão enviados no body da resposta todos os dados do produto cadastrado. Se foi enviado na requisição uma imagem do produto, também será retornado o link do upload da imagem.
 
 ```javascript
 // HTTP Status 201
@@ -429,7 +429,8 @@ Em caso de sucesso, serão enviados no body da resposta todos os dados do produt
 	"descricao": "Arroz",
 	"quantidade_estoque": 5,
 	"valor": 2000,
-	"categoria_id": 4
+	"categoria_id": 4,
+    "produto_imagem": null
 }
 ```
 
@@ -467,7 +468,7 @@ Essa é a rota que permite o usuário logado a atualizar as informações de um 
 
 ### Requisição
 
-Sem parâmetros do tipo query. O id do produto é enviado como parâmetro na rota. O body da requisição deverá possuir um objeto com as propriedades: descricao, quantidade_estoque, valor e categoria_id.
+Sem parâmetros do tipo query. O id do produto é enviado como parâmetro na rota. O body da requisição deverá possuir um objeto com as propriedades: descricao, quantidade_estoque, valor e categoria_id. Também pode possuir a propriedade opcional produto_imagem com o arquivo de imagem do produto.
 
 ```javascript
 {
@@ -869,6 +870,236 @@ Em caso de falha na validação, o body da resposta será um objeto com uma prop
 }
 ```
 
+</details>
+
+</details>
+
+---
+
+<details>
+<summary>3ª Sprint</summary>
+<br>
+
+<details>
+<summary><b>Banco de Dados</b></summary>
+<br>
+
+Crie as seguintes tabelas e colunas abaixo: 
+
+**ATENÇÃO! Os nomes das tabelas e das colunas a serem criados devem seguir exatamente os nomes listados abaixo.**
+
+-   pedidos
+    -   id
+    -   cliente_id
+    -   observacao
+    -   valor_total
+-   pedido_produtos
+    -   id
+    -   pedido_id
+    -   produto_id
+    -   quantidade_produto
+    -   valor_produto
+-   produtos
+    -   produto_imagem
+</details>
+
+---
+
+## **ATENÇÃO**: Todas as funcionalidades (endpoints) a seguir, a partir desse ponto, deverão exigir o token de autenticação do usuário logado, recebendo no header com o formato Bearer Token. Portanto, em cada funcionalidade será necessário validar o token informado.
+
+---
+
+<details>
+<summary><b>Cadastrar Pedido</b></summary>
+
+#### `POST` `/pedido`
+
+Essa é a rota que será utilizada para cadastrar um novo pedido no sistema.
+
+### Requisição
+
+**Lembre-se:** Cada pedido deverá conter ao menos um produto vinculado.
+
+**Atenção:** As propriedades produto_id e quantidade_produto devem ser informadas dentro de um array e para cada produto deverá ser criado um objeto neste array, como ilustrado no objeto de requisição abaixo.
+Só deverá ser cadastrado o pedido caso todos produtos vinculados ao pedido realmente existão no banco de dados.
+
+```javascript
+// Corpo da requisição para cadastro de pedido (body)
+{
+    "cliente_id": 1,
+    "observacao": "Em caso de ausência recomendo deixar com algum vizinho",
+    "pedido_produtos": [
+        {
+            "produto_id": 1,
+            "quantidade_produto": 10
+        },
+        {
+            "produto_id": 2,
+            "quantidade_produto": 20
+        }
+    ]
+}
+```
+
+### Critérios de aceite:
+
+    -   Validar os campos obrigatórios:
+        -   cliente_id
+        -   pedido_produtos
+            -   produto_id
+            -   quantidade_produto
+    -   Validar se existe cliente para o id enviado no corpo (body) da requisição.
+    -   Validar se existe produto para cada produto_id informado dentro do array enviado no corpo (body) da requisição.
+    -   Validar se existe a quantidade em estoque de cada produto existente dentro do array, de acordo com a quantidade informada no corpo (body) da requisição.
+    -   O pedido deverá ser cadastrado, apenas, se todos os produtos estiverem validados. 
+    -   Enviar e-mail para o cliente notificando que o pedido foi efetuado com sucesso.   
+
+### Resposta
+
+Em caso de sucesso, serão enviados no body da resposta os dados do pedido. Também será enviada uma mensagem para o email cadastrado do cliente. 
+
+```javascript
+// HTTP Status 201
+{
+	"id": 24,
+	"cliente_id": 3,
+	"observacao": null,
+	"valor_total": 14618
+}
+```
+
+Em caso de falha na validação, o body da resposta será um objeto com uma propriedade mensagem que possui como valor um texto explicando o motivo da falha. 
+
+```javascript
+// HTTP Status 404
+{
+	"mensagem": "Não foi encontrado o produto de id 87."
+}
+```
+
+```javascript
+// HTTP Status 400
+{
+	"mensagem": "O produto de id 3 não possui estoque suficiente."
+}
+```
+
+</details>
+
+<details>
+<summary><b>Listar Pedidos</b></summary>
+
+#### `GET` `/pedido`
+
+Essa é a rota que será chamada quando o usuário logado quiser listar todos os pedidos cadastrados.
+
+Deveremos incluir um parâmetro do tipo query **cliente_id** para que seja possível consultar pedidos por clientes, de modo, que serão filtrados de acordo com o id de um cliente.
+
+### Requisição
+
+Sem parâmetros de rota e sem conteúdo no body na requisição. Pode ser passado um parâmetro do tipo query **cliente_id**. 
+
+### Critérios de aceite:
+
+    - Caso seja enviado o parâmetro do tipo query **cliente_id**, filtrar os pedidos de acordo com o cliente, caso o id do cliente informado exista.
+    - Caso não seja informado o parâmetro do tipo query **cliente_id** todos os pedidos cadastrados deverão ser retornados.
+
+### Resposta
+
+Em caso de sucesso, serão enviados no body da resposta os pedidos cadastrados.
+
+```javascript
+// Resposta para listagem de pedido (body)
+[
+    {
+        "pedido": {
+            "id": 1,
+            "valor_total": 230010,
+            "observacao": null,
+            "cliente_id": 1
+        },
+        "pedido_produtos": [
+            {
+                "id": 1,
+                "quantidade_produto": 1,
+                "valor_produto": 10,
+                "pedido_id": 1,
+                "produto_id": 1
+            },
+            {
+                "id": 2,
+                "quantidade_produto": 2,
+                "valor_produto": 230000,
+                "pedido_id": 1,
+                "produto_id": 2
+            }
+        ]
+    }
+]
+```
+
+Caso seja enviado como parâmetro do tipo query um id de cliente que não existe, será enviada uma mensagem de erro.
+
+```javascript
+// HTTP Status 404
+{
+    "mensagem": "O id de cliente informado não existe."
+}
+```
+
+</details>
+
+<details>
+<summary><b>Aplicar validação na exclusão de produto</b></summary>
+<br>
+
+Deverá ser aplicada uma regra de negócio que não permitirá exclusão de produto que tenha sido registrado em algum pedido.
+
+Critérios de aceite:
+
+    - Validar se o produto que está sendo excluído não está vinculado a nenhum pedido, caso estiver, não poderá ser excluído e deverá ser retornada uma mensagem indicando o motivo.
+
+</details>
+
+<details>
+<summary><b>Aprimorar cadastro/atualização de produto</b></summary>
+<br>
+
+Deverão ser aprimorados o cadastro e a atualização de produto para permitir vincular uma imagem a um produto. 
+Deverá ser criada uma coluna `produto_imagem` para que seja possível efetuar o vínculo entre a imagem e o produto.
+
+Critérios de aceite:
+    
+    - O campo `produto_imagem` deve ser opcional, mas, em caso de ser enviado no corpo da requisição deveremos processar a imagem vinculada a essa propriedade e armazenar a imagem em um servidor de armazenamento (Supabase, Blackblaze, etc...)
+    - Armazenar na coluna `produto_imagem` a URL que possibilita visualizar a imagem que foi efetuada upload para o servidor de armazenamento.
+
+**Lembre-se:** A URL retornada deve ser válida, ou seja, ao ser clicada deve possibilitar visualizar a imagem que foi feito upload.
+
+**ATENÇÃO:** Abaixo segue o exemplo de uma URL fictícia, mas que no caso, ilustra o que o serviço de armazenamento do Blackblaze retornaria após upload efetuado com sucesso, portanto essa seria no caso a URL que armazaremos na coluna `produto_imagem` no banco de dados.
+
+```javascript
+// Resposta cadastro/atualização de produto (body)
+{
+    "descricao": "Motorola moto g9 plus",
+    "quantidade_estoque": 100,
+    "valor": 15000,
+    "categoria_id": 2,
+    "produto_imagem": "https://s3.us-east-005.backblazeb2.com/desafio-final.jpg"
+}
+```
+
+</details>
+
+<details>
+<summary><b>Aprimorar exclusão de produto</b></summary>
+<br>
+
+Deverá ser aprimorada a exclusão de produto para que quando o produto for excluído também seja removida a imagem vinculada a ele na servidor de armazenamento.
+
+Critérios de aceite:
+
+    - Na exclusão do produto a imagem vinculada a este produto deverá ser excluída do servidor de armazenamento.
+    
 </details>
 
 </details>

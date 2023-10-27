@@ -1,7 +1,9 @@
-const knex = require("../conexao")
+const knex = require("../conexao");
+const { uploadImagem, excluirImagem } = require("../servicos/uploads");
 
 const cadastrarProduto = async (req, res) => {
     const { descricao, quantidade_estoque, valor, categoria_id } = req.body
+    const produto_imagem = req.file
 
     try {
         const categoriaIdValida = await knex('categorias').where({ id: categoria_id }).first()
@@ -16,12 +18,29 @@ const cadastrarProduto = async (req, res) => {
             return res.status(400).json({ mensagem: 'Um produto com essa descrição já foi cadastrado antes.' })
         }
 
-        const produto = await knex('produtos').insert({
+        let produto = await knex('produtos').insert({
             descricao,
             quantidade_estoque,
             valor,
             categoria_id
         }).returning('*')
+
+        if (!produto) {
+            return res.status(400).json({ mensagem: 'O produto não foi cadastrado.' })
+        }
+
+        const idProduto = produto[0].id;
+
+        if (produto_imagem) {
+            const { originalname, mimetype, buffer } = produto_imagem
+
+            const imagem = await uploadImagem(originalname, idProduto, buffer, mimetype)
+
+            produto = await knex('produtos')
+                .where('id', idProduto)
+                .update('produto_imagem', imagem)
+                .returning('*');
+        }
 
         return res.status(201).json(produto[0])
     } catch (error) {
@@ -32,6 +51,7 @@ const cadastrarProduto = async (req, res) => {
 const editarProduto = async (req, res) => {
     const id = req.params.id;
     const { descricao, quantidade_estoque, valor, categoria_id } = req.body;
+    const produto_imagem = req.file;
 
     try {
         const produtoExistente = await knex("produtos").where("id", id).first();
@@ -51,9 +71,13 @@ const editarProduto = async (req, res) => {
             return res.status(400).json({ mensagem: 'Um outro produto com essa descrição já foi cadastrado antes.' })
         }
 
+        await excluirImagem(produtoExistente.produto_imagem)
+
+        const imagemUrl = produto_imagem ? await uploadImagem(produto_imagem.originalname, id, produto_imagem.buffer, produto_imagem.mimetype) : undefined;
+
         await knex("produtos")
             .where("id", id)
-            .update({ descricao, quantidade_estoque, valor, categoria_id });
+            .update({ descricao, quantidade_estoque, valor, categoria_id, produto_imagem: imagemUrl });
 
         return res.status(204).send();
     } catch (error) {
@@ -110,6 +134,14 @@ const excluirProduto = async (req, res) => {
         if (!produto) {
             return res.status(404).json({ mensagem: "Produto não encontrado." });
         }
+
+        const produtosPedidos = await knex("pedido_produtos").where("produto_id", id).select("produto_id");
+
+        if (produtosPedidos.length > 0) {
+            return res.status(400).json({ mensagem: "Produto não pode ser excluído, pois foi feito algum pedido." });
+        }
+
+        await excluirImagem(produto.produto_imagem)
 
         await knex("produtos").where("id", id).del();
 

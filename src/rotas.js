@@ -5,15 +5,18 @@ const { login } = require('./controladores/login');
 const { listarCategorias } = require('./controladores/categorias');
 const clientes = require('./controladores/clientes');
 const { cadastrarProduto, editarProduto, listarProdutos, detalharProduto, excluirProduto } = require('./controladores/produtos');
+const pedidos = require('./controladores/pedidos');
 
 const validarRequisicao = require('./intermediarios/validarRequisicao');
 const verificaToken = require('./intermediarios/verificaToken');
 const validarCepCpf = require('./intermediarios/validarCepCpf');
+const multer = require('./intermediarios/multer');
 
 const schemaUsuario = require('./validacoes/schemaUsuario');
 const schemaLogin = require('./validacoes/schemaLogin');
 const schemaCliente = require('./validacoes/schemaCliente');
 const schemaProduto = require('./validacoes/schemaProduto');
+const schemaPedido = require('./validacoes/schemaPedido');
 
 const rotas = express();
 
@@ -27,8 +30,8 @@ rotas.use(verificaToken);
 rotas.get('/usuario', usuarios.detalharUsuario);
 rotas.put('/usuario', validarRequisicao(schemaUsuario), usuarios.editarUsuario);
 
-rotas.post('/produto', validarRequisicao(schemaProduto), cadastrarProduto);
-rotas.put('/produto/:id', validarRequisicao(schemaProduto), editarProduto);
+rotas.post('/produto', multer.single('produto_imagem'), validarRequisicao(schemaProduto), cadastrarProduto);
+rotas.put('/produto/:id', multer.single('produto_imagem'), validarRequisicao(schemaProduto), editarProduto);
 rotas.get('/produto', listarProdutos);
 rotas.get('/produto/:id', detalharProduto);
 rotas.delete('/produto/:id', excluirProduto);
@@ -36,6 +39,9 @@ rotas.delete('/produto/:id', excluirProduto);
 rotas.post('/cliente', validarRequisicao(schemaCliente), validarCepCpf, clientes.cadastrarCliente);
 rotas.put('/cliente/:id', validarRequisicao(schemaCliente), validarCepCpf, clientes.editarCliente)
 rotas.get('/cliente', clientes.listarClientes);
-rotas.get('/cliente/:id', clientes.detalharClientes)
+rotas.get('/cliente/:id', clientes.detalharClientes);
+
+rotas.post('/pedido', validarRequisicao(schemaPedido), pedidos.cadastrarPedido);
+rotas.get('/pedido', pedidos.listarPedidos);
 
 module.exports = rotas;
